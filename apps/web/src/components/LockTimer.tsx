@@ -40,8 +40,8 @@ export const LockTimer: React.FC<LockTimerProps> = ({ expiresAt, onExpire, compa
 
   if (timeLeft.isExpired) {
     return (
-      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-950/80 text-rose-300 border border-rose-800">
-        <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
+      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-600 border border-red-200">
+        <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
         <span>Price Lock Expired</span>
       </div>
     );
@@ -51,21 +51,23 @@ export const LockTimer: React.FC<LockTimerProps> = ({ expiresAt, onExpire, compa
 
   if (compact) {
     return (
-      <span className={`inline-flex items-center gap-1 text-xs font-mono font-medium ${isUrgent ? 'text-amber-400' : 'text-emerald-400'}`}>
-        <Clock className="w-3 h-3" />
+      <span className={`inline-flex items-center gap-1 text-xs font-mono font-medium ${
+        isUrgent ? 'text-amber-600' : 'text-[#00a87e]'
+      }`}>
+        <Clock className="w-3.5 h-3.5" />
         {pad(timeLeft.hours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}
       </span>
     );
   }
 
   return (
-    <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium font-mono ${
+    <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium font-mono ${
       isUrgent
-        ? 'bg-amber-950/40 text-amber-300 border-amber-800/80 animate-pulse'
-        : 'bg-emerald-950/40 text-emerald-300 border-emerald-800/80'
+        ? 'bg-amber-50 text-amber-800 border-amber-200 animate-pulse'
+        : 'bg-[#e6f9f4] text-[#00a87e] border-[#b2edd9]'
     }`}>
-      <Clock className={`w-3.5 h-3.5 ${isUrgent ? 'text-amber-400' : 'text-emerald-400'}`} />
-      <span>Price Locked: </span>
+      <Clock className={`w-3.5 h-3.5 ${isUrgent ? 'text-amber-600' : 'text-[#00a87e]'}`} />
+      <span className="font-sans font-semibold text-[11px]">Price Locked: </span>
       <span className="font-bold tracking-wider">
         {pad(timeLeft.hours)}h {pad(timeLeft.minutes)}m {pad(timeLeft.seconds)}s
       </span>

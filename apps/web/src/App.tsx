@@ -9,6 +9,7 @@ import {
   LedgerEntry,
   AuditLog,
   UserRole,
+  Language,
   SEED_CATEGORIES,
   WHEAT_TEMPLATE,
   CHILLI_TEMPLATE,
@@ -19,15 +20,18 @@ import {
   transitionDeal,
   maskDealForBuyer,
   maskDealForSupplier,
-  sanitizeListingForBuyer,
 } from '@bulkkx/shared';
 import { Header } from './components/Header';
 import { BuyerView } from './views/BuyerView';
 import { SupplierView } from './views/SupplierView';
 import { OpsConsoleView } from './views/OpsConsoleView';
+import { KycModal } from './components/KycModal';
 
 export function App() {
   const [currentRole, setCurrentRole] = useState<UserRole>('buyer');
+  const [lang, setLang] = useState<Language>('en');
+  const [activeNavTab, setActiveNavTab] = useState<string>('explore');
+  const [showKycModal, setShowKycModal] = useState(false);
   const [categories, setCategories] = useState<Category[]>(SEED_CATEGORIES);
   const [templates, setTemplates] = useState<Map<string, CategoryTemplate>>(
     new Map([
@@ -39,7 +43,7 @@ export function App() {
   const [selectedCategory, setSelectedCategory] = useState<string>('cat-grains');
 
   // Supplier & Buyer Parties
-  const supplierParty = {
+  const [supplierParty, setSupplierParty] = useState({
     id: 'sup-001',
     userId: 'usr-sup-1',
     legalName: 'Shree Balaji Agro Traders Pvt Ltd',
@@ -59,9 +63,9 @@ export function App() {
     },
     createdAt: '',
     updatedAt: '',
-  };
+  });
 
-  const buyerParty = {
+  const [buyerParty, setBuyerParty] = useState({
     id: 'buy-001',
     userId: 'usr-buy-1',
     legalName: 'Kalyan Flour Mills & Foods LLP',
@@ -81,7 +85,7 @@ export function App() {
     },
     createdAt: '',
     updatedAt: '',
-  };
+  });
 
   // Listings with guaranteed price locks
   const [listings, setListings] = useState<Listing[]>([
@@ -108,7 +112,7 @@ export function App() {
       unit: 'MT',
       location: supplierParty.address,
       priceSlabs: [{ minQty: 10, pricePaise: 268000 }],
-      lockedPricePaise: 268000, // ₹2,680 / MT in paise
+      lockedPricePaise: 268000,
       lockExpiresAt: new Date(Date.now() + 23 * 3600 * 1000 + 45 * 60 * 1000).toISOString(),
       leadTimeDays: 2,
       status: 'active',
@@ -138,7 +142,7 @@ export function App() {
       unit: 'Quintal',
       location: supplierParty.address,
       priceSlabs: [{ minQty: 2, pricePaise: 1850000 }],
-      lockedPricePaise: 1850000, // ₹18,500 / Quintal
+      lockedPricePaise: 1850000,
       lockExpiresAt: new Date(Date.now() + 35 * 3600 * 1000).toISOString(),
       leadTimeDays: 3,
       status: 'active',
@@ -147,16 +151,13 @@ export function App() {
     },
   ]);
 
-  // Matches
   const [matches, setMatches] = useState<Match[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
   const [ledger, setLedger] = useState<LedgerEntry[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [recentNotification, setRecentNotification] = useState<any | null>(null);
 
-  // Initialize initial match & deal on mount
   useEffect(() => {
-    // Generate initial sample requirement & match
     const initialReq: Requirement = {
       id: 'req-init-1',
       buyerId: 'buy-001',
@@ -175,7 +176,6 @@ export function App() {
     const matchRes = matchRequirementToListings(initialReq, listings, WHEAT_TEMPLATE, 'gold');
     setMatches(matchRes.matches);
 
-    // Create an initial active deal to showcase the stepper and masking immediately
     const breakdown = calculateDealBreakdown({
       unitPricePaise: listings[0].lockedPricePaise,
       quantity: 25,
@@ -201,7 +201,7 @@ export function App() {
       reservePercentage: 10,
       reserveAmountPaise: breakdown.reserveAmountPaise,
       platformFeePaise: breakdown.platformFeePaise,
-      state: 'terms_accepted', // Ready for reserve confirmation
+      state: 'terms_accepted',
       version: 2,
       listingSnapshot: {},
       lockExpiresAt: listings[0].lockExpiresAt,
@@ -222,7 +222,7 @@ export function App() {
           actorId: 'buy-001',
           actorRole: 'buyer',
           timestamp: new Date().toISOString(),
-          note: 'Buyer locked commercial terms',
+          note: 'Buyer accepted deal terms & confirmed 10% Bank Escrow deposit',
         },
       ],
       createdAt: new Date(Date.now() - 3600 * 1000).toISOString(),
@@ -231,7 +231,6 @@ export function App() {
 
     setDeals([sampleDeal]);
 
-    // Initial audit log
     setAuditLogs([
       {
         id: 'audit-boot-01',
@@ -249,7 +248,6 @@ export function App() {
   const activeCategory = categories.find((c) => c.id === selectedCategory) || categories[0];
   const activeTemplate = activeCategory ? templates.get(activeCategory.activeTemplateId) || null : null;
 
-  // Notification dispatcher simulation
   const dispatchWhatsAppToast = (templateName: string, params: Record<string, string>, deepLink: string) => {
     setRecentNotification({
       channel: 'whatsapp',
@@ -259,7 +257,6 @@ export function App() {
     });
   };
 
-  // Actions
   const handlePostRequirement = async (reqData: any) => {
     const newReq: Requirement = {
       id: `req-${Date.now()}`,
@@ -379,7 +376,6 @@ export function App() {
     const targetDeal = deals.find((d) => d.id === dealId);
     if (!targetDeal) return;
 
-    // Handle special simulated partner reserve webhook trigger
     if (event === 'TRIGGER_PARTNER_WEBHOOK') {
       const webhookPayload = {
         partnerEventId: `evt-${Date.now()}`,
@@ -390,7 +386,6 @@ export function App() {
         signature: 'mock_sig_valid',
       };
 
-      // State machine advance to reserve_confirmed
       const res = transitionDeal(
         targetDeal,
         'RESERVE_CONFIRMED',
@@ -401,7 +396,6 @@ export function App() {
       setDeals((prev) => prev.map((d) => (d.id === dealId ? res.newDeal : d)));
       setAuditLogs((prev) => [res.auditEntry, ...prev]);
 
-      // Add to double entry ledger
       const newLedgerEntry: LedgerEntry = {
         id: `ldg-${Date.now()}`,
         dealId: targetDeal.id,
@@ -410,7 +404,7 @@ export function App() {
         amountPaise: targetDeal.reserveAmountPaise,
         type: 'reserve_funded',
         idempotencyKey: `idem-${webhookPayload.partnerEventId}`,
-        description: `10% Reserve confirmed in Bank Escrow for ${targetDeal.dealCode}. Identities unmasked.`,
+        description: `10% Reserve confirmed in Bank Escrow for ${targetDeal.dealCode}. Counterparty identities unmasked.`,
         timestamp: new Date().toISOString(),
       };
       setLedger((prev) => [newLedgerEntry, ...prev]);
@@ -494,7 +488,6 @@ export function App() {
     setSelectedCategory(categoryId);
   };
 
-  // Mask deals based on currently active persona
   const processedDeals = deals.map((d) => {
     if (currentRole === 'buyer') {
       return maskDealForBuyer(d, supplierParty);
@@ -511,10 +504,16 @@ export function App() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-[#fcfdfd] text-[#141b29] flex flex-col font-['Plus_Jakarta_Sans',sans-serif]">
       <Header
         currentRole={currentRole}
         onRoleChange={setCurrentRole}
+        lang={lang}
+        onLanguageChange={setLang}
+        onOpenKyc={() => setShowKycModal(true)}
+        isKycVerified={buyerParty.kycStatus === 'verified'}
+        activeNavTab={activeNavTab}
+        onNavTabChange={setActiveNavTab}
         recentNotification={recentNotification}
         onDismissNotification={() => setRecentNotification(null)}
       />
@@ -532,6 +531,7 @@ export function App() {
             deals={processedDeals as any}
             onSelectMatchForDeal={handleSelectMatchForDeal}
             onTriggerDealEvent={handleTriggerDealEvent}
+            lang={lang}
           />
         )}
 
@@ -563,12 +563,35 @@ export function App() {
         )}
       </main>
 
-      <footer className="border-t border-slate-900 bg-slate-950 py-6 text-center text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>BulkkX Commodity Portal · Non-Custodial Facilitator Model</span>
-          <span className="font-mono">Engine: Integer Paise Math · Single State Machine Source of Truth</span>
+      {/* Groww-style Clean Footer */}
+      <footer className="border-t border-gray-200 bg-white py-8 text-xs text-gray-500">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="font-extrabold text-sm text-[#141b29]">Bulkk<span className="text-[#00d09c]">X</span></span>
+            <span>·</span>
+            <span>Non-Custodial Commodity Matching Platform</span>
+          </div>
+
+          <div className="flex items-center gap-4 text-[11px] text-gray-400 font-mono">
+            <span>Integer Paise Engine</span>
+            <span>·</span>
+            <span>Append-Only Escrow Ledger</span>
+            <span>·</span>
+            <span>Zero Buyer Fees</span>
+          </div>
         </div>
       </footer>
+
+      {showKycModal && (
+        <KycModal
+          initialParty={buyerParty}
+          onClose={() => setShowKycModal(false)}
+          onKycCompleted={(data) => {
+            setBuyerParty((prev) => ({ ...prev, ...data }));
+            setShowKycModal(false);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Deal, DealState, formatINR, UserRole } from '@bulkkx/shared';
 import {
-  ShieldAlert,
   ShieldCheck,
   Truck,
   CheckCircle2,
@@ -75,7 +74,6 @@ export const DealTracker: React.FC<DealTrackerProps> = ({ deal, currentRole, onT
     }
   };
 
-  // Plain-English "Who Acts Next" Directive
   const getActionDirective = () => {
     switch (deal.state) {
       case 'matched':
@@ -110,7 +108,7 @@ export const DealTracker: React.FC<DealTrackerProps> = ({ deal, currentRole, onT
         return {
           actor: 'Supplier',
           urgency: 'high',
-          text: 'Reserve confirmed in Escrow! Supplier can now dispatch the consignment.',
+          text: 'Reserve confirmed in Bank Escrow! Supplier can now dispatch the consignment.',
           allowedRole: 'supplier',
           actionEvent: 'MARK_DISPATCHED',
           actionLabel: 'Confirm Consignment Dispatch',
@@ -142,7 +140,7 @@ export const DealTracker: React.FC<DealTrackerProps> = ({ deal, currentRole, onT
           text: 'Buyer raised a quality dispute. Ops reviewing weighbridge and lab test evidence.',
           allowedRole: 'ops',
           actionEvent: 'OPS_RESOLVE_DISPUTE',
-          actionLabel: 'Resolve Dispute (BulkkX Ops Concierge)',
+          actionLabel: 'Resolve Dispute (BulkkX Ops)',
         };
       case 'accepted':
       case 'resolved':
@@ -185,45 +183,45 @@ export const DealTracker: React.FC<DealTrackerProps> = ({ deal, currentRole, onT
   return (
     <div className="space-y-6">
       {/* 1. Header with Deal ID & Status */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-8 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-gray-100">
           <div>
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
+            <div className="flex items-center gap-2.5">
+              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-[#e6f9f4] text-[#00a87e] border border-[#b2edd9]">
                 {deal.dealCode}
               </span>
-              <span className="text-xs text-slate-400 font-mono">v{deal.version} (Optimistic Concurrency)</span>
+              <span className="text-xs text-gray-500 font-mono">v{deal.version} (Optimistic Lock)</span>
             </div>
-            <h2 className="text-xl font-bold text-slate-100 mt-1">
-              {deal.quantity} {deal.unit} Commodity Contract
+            <h2 className="text-2xl font-bold text-[#141b29] mt-2">
+              {deal.quantity} {deal.unit} Commodity Deal
             </h2>
           </div>
 
           <div className="text-right">
-            <div className="text-xs text-slate-400">Total Contract Value</div>
-            <div className="text-xl font-bold font-mono text-emerald-400">
+            <div className="text-xs text-gray-500 font-medium">Total Contract Value</div>
+            <div className="text-2xl font-extrabold font-mono text-[#00a87e]">
               {formatINR(deal.effectiveTotalPaise)}
             </div>
           </div>
         </div>
 
         {/* 2. Plain English "Who Acts Next" Banner */}
-        <div className={`mt-5 p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+        <div className={`mt-6 p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
           directive.urgency === 'high'
-            ? 'bg-amber-950/30 border-amber-800/80 text-amber-200'
+            ? 'bg-[#fffbeb] border-[#fef08a] text-[#854d0e]'
             : directive.urgency === 'done'
-            ? 'bg-emerald-950/30 border-emerald-800/80 text-emerald-200'
-            : 'bg-indigo-950/30 border-indigo-800/80 text-indigo-200'
+            ? 'bg-[#f0fdf4] border-[#bbf7d0] text-[#166534]'
+            : 'bg-[#f8fafd] border-gray-200 text-gray-800'
         }`}>
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-slate-900/80 mt-0.5">
-              <Clock className="w-5 h-5 text-amber-400" />
+          <div className="flex items-start gap-3.5">
+            <div className="p-2.5 rounded-xl bg-white shadow-2xs mt-0.5">
+              <Clock className="w-5 h-5 text-[#d97706]" />
             </div>
             <div>
-              <div className="text-xs font-bold uppercase tracking-wider opacity-80">
-                Who Acts Next: <span className="underline">{directive.actor}</span>
+              <div className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                Action Required From: <span className="text-gray-900 font-extrabold underline">{directive.actor}</span>
               </div>
-              <p className="text-sm font-medium mt-0.5">{directive.text}</p>
+              <p className="text-sm font-semibold mt-1 text-gray-900">{directive.text}</p>
             </div>
           </div>
 
@@ -233,7 +231,7 @@ export const DealTracker: React.FC<DealTrackerProps> = ({ deal, currentRole, onT
               <button
                 disabled={loading}
                 onClick={() => handleAction(directive.actionEvent!)}
-                className="px-4 py-2.5 rounded-lg font-semibold text-xs bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md transition disabled:opacity-50 cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
+                className="px-5 py-2.5 rounded-xl font-bold text-xs bg-[#00d09c] hover:bg-[#00b386] text-white shadow-xs transition disabled:opacity-50 cursor-pointer flex items-center gap-2 whitespace-nowrap"
               >
                 <span>{directive.actionLabel}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -243,9 +241,9 @@ export const DealTracker: React.FC<DealTrackerProps> = ({ deal, currentRole, onT
                 <button
                   disabled={loading}
                   onClick={() => setShowDisputeModal(true)}
-                  className="px-3 py-2.5 rounded-lg font-semibold text-xs bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 transition disabled:opacity-50 cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
+                  className="px-3.5 py-2.5 rounded-xl font-semibold text-xs bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 transition disabled:opacity-50 cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
                 >
-                  <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
+                  <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
                   <span>Raise Dispute</span>
                 </button>
               )}
@@ -254,84 +252,88 @@ export const DealTracker: React.FC<DealTrackerProps> = ({ deal, currentRole, onT
         </div>
 
         {/* 3. Anti-Disintermediation Masking Status Card */}
-        <div className="mt-5 p-4 rounded-xl border border-slate-800 bg-slate-950/60">
-          <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+        <div className="mt-6 p-5 rounded-2xl border border-gray-200 bg-[#f8fafd]">
+          <div className="flex items-center justify-between pb-3 border-b border-gray-200/80">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-600 flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-[#00d09c]" />
               <span>Counterparty Identity Security & Confidentiality</span>
             </h4>
             {deal.isIdentityRevealed ? (
-              <span className="inline-flex items-center gap-1 text-xs text-emerald-400 font-semibold bg-emerald-950/50 px-2 py-0.5 rounded border border-emerald-800">
+              <span className="inline-flex items-center gap-1 text-xs text-[#00a87e] font-semibold bg-[#e6f9f4] px-2.5 py-0.5 rounded-full border border-[#b2edd9]">
                 <CheckCircle2 className="w-3.5 h-3.5" /> Identity Verified & Legally Unlocked
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 text-xs text-amber-400 font-semibold bg-amber-950/50 px-2 py-0.5 rounded border border-amber-800">
+              <span className="inline-flex items-center gap-1 text-xs text-amber-700 font-semibold bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
                 <Lock className="w-3.5 h-3.5" /> Identity Strictly Masked (Pre-Reserve)
               </span>
             )}
           </div>
 
-          <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             {/* Supplier Side View */}
-            <div className="p-3 rounded-lg bg-slate-900/60 border border-slate-800/80">
-              <div className="text-xs text-slate-500 font-medium">Supplier Profile</div>
+            <div className="p-4 rounded-xl bg-white border border-gray-200 shadow-2xs">
+              <div className="text-xs text-gray-500 font-medium">Supplier Profile</div>
               {deal.isIdentityRevealed && deal.supplier?.legalName ? (
-                <div className="mt-2 space-y-1">
-                  <div className="font-bold text-slate-100 flex items-center gap-1.5">
-                    <Building className="w-4 h-4 text-emerald-400" />
+                <div className="mt-2.5 space-y-1.5">
+                  <div className="font-bold text-gray-900 flex items-center gap-2">
+                    <Building className="w-4 h-4 text-[#00d09c]" />
                     <span>{deal.supplier.legalName}</span>
                   </div>
-                  <div className="text-xs text-slate-400 flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5 text-slate-500" />
+                  <div className="text-xs text-gray-600 flex items-center gap-2">
+                    <Phone className="w-3.5 h-3.5 text-gray-400" />
                     <span>{deal.supplier.phone}</span>
                   </div>
-                  <div className="text-xs text-slate-400 flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-slate-500" />
+                  <div className="text-xs text-gray-600 flex items-center gap-2">
+                    <MapPin className="w-3.5 h-3.5 text-gray-400" />
                     <span>
                       {deal.supplier.address?.line1}, {deal.supplier.address?.city}, {deal.supplier.address?.state}
                     </span>
                   </div>
-                  <div className="text-xs font-mono text-emerald-400">GSTIN: {deal.supplier.gstin}</div>
+                  <div className="text-xs font-mono text-[#00a87e] font-semibold">
+                    GSTIN: {deal.supplier.gstin}
+                  </div>
                 </div>
               ) : (
-                <div className="mt-2 space-y-1 text-slate-300">
-                  <div className="font-semibold text-slate-200 flex items-center gap-1.5">
-                    <Lock className="w-3.5 h-3.5 text-amber-400" />
+                <div className="mt-2.5 space-y-1.5 text-gray-700">
+                  <div className="font-bold text-gray-900 flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-amber-600" />
                     <span>{deal.supplier?.pseudonym || 'Verified Supplier #GJ-402'}</span>
                   </div>
-                  <div className="text-xs text-slate-400">
+                  <div className="text-xs text-gray-500">
                     Location: {deal.supplier?.city || 'Rajkot'}, {deal.supplier?.state || 'Gujarat'}
                   </div>
-                  <div className="text-[11px] text-amber-400/90 italic">
-                    Legal company name, phone & GSTIN masked to buyer until 10% Bank Reserve is confirmed.
+                  <div className="text-[11px] text-amber-700 font-medium">
+                    Legal company name, phone & GSTIN are protected until 10% Bank Reserve is confirmed.
                   </div>
                 </div>
               )}
             </div>
 
             {/* Buyer Side View */}
-            <div className="p-3 rounded-lg bg-slate-900/60 border border-slate-800/80">
-              <div className="text-xs text-slate-500 font-medium">Buyer Profile</div>
+            <div className="p-4 rounded-xl bg-white border border-gray-200 shadow-2xs">
+              <div className="text-xs text-gray-500 font-medium">Buyer Profile</div>
               {deal.isIdentityRevealed && deal.buyer?.legalName ? (
-                <div className="mt-2 space-y-1">
-                  <div className="font-bold text-slate-100 flex items-center gap-1.5">
-                    <Building className="w-4 h-4 text-emerald-400" />
+                <div className="mt-2.5 space-y-1.5">
+                  <div className="font-bold text-gray-900 flex items-center gap-2">
+                    <Building className="w-4 h-4 text-[#00d09c]" />
                     <span>{deal.buyer.legalName}</span>
                   </div>
-                  <div className="text-xs text-slate-400 flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5 text-slate-500" />
+                  <div className="text-xs text-gray-600 flex items-center gap-2">
+                    <Phone className="w-3.5 h-3.5 text-gray-400" />
                     <span>{deal.buyer.phone}</span>
                   </div>
-                  <div className="text-xs font-mono text-emerald-400">GSTIN: {deal.buyer.gstin}</div>
+                  <div className="text-xs font-mono text-[#00a87e] font-semibold">
+                    GSTIN: {deal.buyer.gstin}
+                  </div>
                 </div>
               ) : (
-                <div className="mt-2 space-y-1 text-slate-300">
-                  <div className="font-semibold text-slate-200 flex items-center gap-1.5">
-                    <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <div className="mt-2.5 space-y-1.5 text-gray-700">
+                  <div className="font-bold text-gray-900 flex items-center gap-1.5">
+                    <UserCheck className="w-3.5 h-3.5 text-[#00d09c]" />
                     <span>{deal.buyer?.pseudonym || 'Gold Tier Verified Buyer #DL-881'}</span>
                   </div>
-                  <div className="text-xs text-slate-400">Destination: New Delhi, Delhi (110020)</div>
-                  <div className="text-[11px] text-emerald-400/90">
+                  <div className="text-xs text-gray-500">Destination: New Delhi, Delhi (110020)</div>
+                  <div className="text-[11px] text-[#00a87e] font-medium">
                     KYC Verified · Full legal identity shared with supplier upon reserve placement.
                   </div>
                 </div>
@@ -341,24 +343,24 @@ export const DealTracker: React.FC<DealTrackerProps> = ({ deal, currentRole, onT
         </div>
 
         {/* 4. Horizontal State Stepper */}
-        <div className="mt-6 pt-6 border-t border-slate-800">
-          <div className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4">
+        <div className="mt-8 pt-6 border-t border-gray-100">
+          <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4">
             Deal State Machine Progress
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2.5">
             {STEPS.map((step, idx) => {
               const status = getStepStatus(step.state);
               return (
                 <div
                   key={step.state}
-                  className={`p-2.5 rounded-xl border text-center transition ${
+                  className={`p-3 rounded-2xl border text-center transition ${
                     status === 'completed'
-                      ? 'bg-emerald-950/40 border-emerald-800 text-emerald-300'
+                      ? 'bg-[#e6f9f4] border-[#b2edd9] text-[#00a87e]'
                       : status === 'current'
-                      ? 'bg-amber-950/60 border-amber-600 text-amber-200 ring-2 ring-amber-500/40'
+                      ? 'bg-white border-[#00d09c] text-[#141b29] ring-2 ring-[#00d09c]/25 shadow-xs'
                       : status === 'disputed'
-                      ? 'bg-rose-950/60 border-rose-700 text-rose-300'
-                      : 'bg-slate-900/40 border-slate-800 text-slate-500'
+                      ? 'bg-red-50 border-red-200 text-red-700'
+                      : 'bg-gray-50 border-gray-200 text-gray-400'
                   }`}
                 >
                   <div className="text-[10px] font-mono opacity-60">Step {idx + 1}</div>
@@ -373,31 +375,31 @@ export const DealTracker: React.FC<DealTrackerProps> = ({ deal, currentRole, onT
 
       {/* Dispute Modal */}
       {showDisputeModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-rose-300 flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-rose-400" />
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="bg-white border border-gray-200 rounded-3xl max-w-md w-full p-6 shadow-xl">
+            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
               <span>Raise Quality Dispute</span>
             </h3>
-            <p className="text-xs text-slate-400 mt-1">
-              Inspection window active (48 hours). Please record the discrepancy (moisture %, foreign matter, damage).
+            <p className="text-xs text-gray-500 mt-1">
+              48-Hour Inspection window active. Please state the quality variance (moisture %, foreign matter, damage).
             </p>
 
             <div className="mt-4">
-              <label className="text-xs font-semibold text-slate-300">Dispute Details & Evidence</label>
+              <label className="text-xs font-semibold text-gray-700">Dispute Details & Evidence</label>
               <textarea
                 rows={3}
                 value={disputeReason}
                 onChange={(e) => setDisputeReason(e.target.value)}
                 placeholder="e.g. Moisture measured at 13.5% vs contractual 11.2% on weighbridge lab slip."
-                className="mt-1.5 w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-rose-500/50"
+                className="mt-1.5 w-full bg-white border border-gray-300 rounded-xl p-3 text-xs sm:text-sm text-gray-800 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200"
               />
             </div>
 
             <div className="mt-5 flex justify-end gap-2">
               <button
                 onClick={() => setShowDisputeModal(false)}
-                className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 cursor-pointer"
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-gray-600 hover:text-gray-900 cursor-pointer"
               >
                 Cancel
               </button>
@@ -410,7 +412,7 @@ export const DealTracker: React.FC<DealTrackerProps> = ({ deal, currentRole, onT
                   });
                   setShowDisputeModal(false);
                 }}
-                className="px-4 py-2 rounded-lg text-xs font-semibold bg-rose-600 hover:bg-rose-500 text-white cursor-pointer disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white cursor-pointer disabled:opacity-50 shadow-xs"
               >
                 Submit Dispute to Ops
               </button>
