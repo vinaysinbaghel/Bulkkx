@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import {
   Category,
@@ -24,7 +26,6 @@ import {
 import { Header } from './components/Header';
 import { BuyerView } from './views/BuyerView';
 import { SupplierView } from './views/SupplierView';
-import { OpsConsoleView } from './views/OpsConsoleView';
 import { KycModal } from './components/KycModal';
 
 export function App() {
@@ -550,16 +551,25 @@ export function App() {
         )}
 
         {currentRole === 'ops' && (
-          <OpsConsoleView
-            categories={categories}
-            matches={matches}
-            deals={processedDeals as any}
-            ledger={ledger}
-            auditLogs={auditLogs}
-            onApproveMatch={handleApproveMatch}
-            onCreateCategory={handleCreateCategory}
-            onRefreshData={async () => {}}
-          />
+          <div className="bg-white rounded-xl border border-slate-200 p-8 text-center space-y-4 my-8 max-w-xl mx-auto shadow-sm">
+            <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto text-xl font-bold">
+              ⚙️
+            </div>
+            <h3 className="text-lg font-bold text-slate-900">Desktop-First Ops & Admin Console</h3>
+            <p className="text-sm text-slate-600">
+              Per Section 4 & 12 of the Architecture Plan, the Operations Workbench runs as a dedicated desktop application with dense tables and URL state filtering.
+            </p>
+            <div className="pt-2">
+              <a
+                href="http://localhost:3001"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+              >
+                Launch Admin Console (Port 3001) →
+              </a>
+            </div>
+          </div>
         )}
       </main>
 

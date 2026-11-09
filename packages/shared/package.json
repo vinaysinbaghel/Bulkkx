@@ -10,9 +10,19 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@date-fns/tz": "^1.2.0",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "date-fns": "^4.1.0",
+    "openapi-fetch": "^0.13.4",
+    "uuid": "^11.1.0",
+    "xstate": "^5.19.2",
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@types/uuid": "^10.0.0",
+    "@xstate/graph": "^3.0.4",
+    "openapi-typescript": "^7.6.1",
     "tsup": "^8.4.0",
     "typescript": "^5.8.2",
     "vitest": "^3.0.7"

@@ -2,28 +2,47 @@
   "name": "@bulkkx/web",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "next lint"
   },
   "dependencies": {
     "@bulkkx/adapters": "workspace:*",
     "@bulkkx/shared": "workspace:*",
+    "@bulkkx/ui": "workspace:*",
+    "@hookform/resolvers": "^4.1.3",
+    "@rjsf/core": "^5.24.3",
+    "@rjsf/utils": "^5.24.3",
+    "@rjsf/validator-ajv8": "^5.24.3",
+    "@sentry/nextjs": "^9.3.0",
+    "@serwist/next": "^9.0.12",
+    "@tanstack/react-query": "^5.67.1",
+    "browser-image-compression": "^2.0.2",
+    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "idb-keyval": "^6.2.1",
     "lucide-react": "^1.16.0",
+    "next": "^15.2.1",
+    "next-intl": "^3.26.5",
+    "openapi-fetch": "^0.13.4",
     "react": "^19.0.0",
+    "react-day-picker": "^9.5.1",
     "react-dom": "^19.0.0",
-    "tailwind-merge": "^3.0.2"
+    "react-hook-form": "^7.54.2",
+    "serwist": "^9.0.12",
+    "sonner": "^2.0.1",
+    "tailwind-merge": "^3.0.2",
+    "tailwindcss": "^4.0.9",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.0.0",
+    "@tailwindcss/postcss": "^4.0.9",
+    "@types/node": "^22.13.9",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
-    "@vitejs/plugin-react": "^4.3.4",
-    "tailwindcss": "^4.0.0",
-    "typescript": "^5.8.2",
-    "vite": "^6.2.0"
+    "postcss": "^8.5.3",
+    "typescript": "^5.8.2"
   }
 }
